@@ -3,6 +3,7 @@
 // #include <SDL_ttf.h>
 #include <SDL_image.h>
 // #include <SDL_mixer.h>
+// #include <SDL_mixer.h>
 #include <sstream>
 #include <stdio.h>
 #include <iostream>
@@ -85,6 +86,7 @@ public:
                 if( e.type == SDL_QUIT )
                 {
                     quit = true;
+                    theGame->close();
                 }
                 if(e.type == SDL_KEYDOWN) {
                     SDL_Keycode symbol = e.key.keysym.sym;
@@ -124,6 +126,8 @@ public:
                 if( e.type == SDL_QUIT )
                 {
                     quit = true;
+                    theGame->close();
+
                 }
                 SDL_Keycode symbol = e.key.keysym.sym;
                 if(symbol == SDLK_r){
@@ -132,6 +136,7 @@ public:
                 }
                 else if(symbol == SDLK_q){
                     quit = true;
+                    theGame->close();
                 }
             }
             theGame->drawBg();
@@ -160,6 +165,7 @@ public:
                 if( e.type == SDL_QUIT )
                 {
                     quit = true;
+                    theGame->close();
                 }
                 if(e.type == SDL_KEYDOWN) {
                     SDL_Keycode symbol = e.key.keysym.sym;
@@ -172,7 +178,6 @@ public:
                             Player* player = new Bluewoman(moverRight,healthRight,"left");
                             theGame->setAssetsTwo("playerimg/bluewomanleft.png");
                             return player;
-
                         }
                     }
                     else if(symbol == SDLK_2){

@@ -5,11 +5,21 @@
 #include <iostream>
 using namespace std;
 const Uint8* keyState;
+// Mix_Music *backgroundMusic = NULL;
+// Mix_Chunk *onehigh=NULL;
+// Mix_Chunk *twohigh=NULL;
+// Mix_Chunk *threehigh=NULL;
+// Mix_Chunk *fourhigh=NULL;
 
 bool Game::init()
 {
 	//Initialization flag
 	bool success = true;
+	// if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+	// {
+    // 	printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+    // 	success = false;
+	// }
 
 	//Initialize SDL
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
@@ -77,6 +87,8 @@ bool Game::loadMedia()
     // gTexture = loadTexture("habib.png");
 	greentexture=loadTexture("green.png");
 	whitetexture=loadTexture("white.png");
+		return success;
+	}
 
 
 	// if(assetsOne==NULL || assetsTwo== NULL || gTexture==NULL)
@@ -86,8 +98,8 @@ bool Game::loadMedia()
     //     success =false;
     // }
 	
-	return success;
-}
+	// return success;
+
 
 void Game::close()
 {
@@ -101,6 +113,11 @@ void Game::close()
 	//Destroy window
 	SDL_DestroyRenderer( gRenderer );
 	SDL_DestroyWindow( gWindow );
+	// Mix_FreeChunk(onehigh);
+	// Mix_FreeChunk(twohigh);
+	// Mix_FreeChunk(threehigh);
+	// Mix_FreeChunk(fourhigh);
+	// Mix_FreeMusic(backgroundMusic);
 	// Mix_FreeMusic(bgMusic);
 	// bgMusic = NULL;
 	gWindow = NULL;
@@ -192,19 +209,18 @@ void Game::run()
 	int kickvar2=0;
 	int played=0;
 	int gamestate=0;
+	int restart = 0;
 
 	Timer timer;
+	// timer.start();
 	int progressBarWidth = 200;
     int progressBarHeight = 20;
-    int maxTime = 10000;  // 10 seconds in milliseconds
+    int maxTime = 20000;  // 20 seconds in milliseconds
 	int initState = 0;
 
 	while(!quit)
 	{
-		// if(state == 0){
-		// 	gameStart.drawGrounds();
-		// 	state = 1;
-		// }
+		
 		//Handle events on queue
 			while( SDL_PollEvent( &e ) != 0 )
 			{
@@ -213,7 +229,7 @@ void Game::run()
 				{
 					quit = true;
 				}
-				if(e.type == SDL_KEYUP) {
+				if(e.type == SDL_KEYUP){
 					if(e.key.keysym.sym == SDLK_q){
 						longvar2=0;
 						playerOne->unPunch(playerTwo);
@@ -267,13 +283,14 @@ void Game::run()
 				std::cout << "Game over! Two minutes have passed." << std::endl;
 				quit = true;
 			}
-			 // Render the progress bar
-			float progress = static_cast<float>(elapsedTime) / maxTime;
-			int currentProgressBarWidth = static_cast<int>(progress * progressBarWidth);
 
-			SDL_Rect progressBarRect = {10, 10, currentProgressBarWidth, progressBarHeight};
-			SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);  // Green color
-			SDL_RenderFillRect(gRenderer, &progressBarRect);
+			// Render the progress bar
+			// float progress = static_cast<float>(elapsedTime) / maxTime;
+			// int currentProgressBarWidth = static_cast<int>(progress * progressBarWidth);
+
+			// SDL_Rect progressBarRect = {10, 10, currentProgressBarWidth, progressBarHeight};
+			// SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);  // Green color
+			// SDL_RenderFillRect(gRenderer, &progressBarRect);
 
 
 			keyState = SDL_GetKeyboardState(NULL);
@@ -329,6 +346,8 @@ void Game::run()
 				if(kickvar1==0)
 				{
 				playerTwo->kickattack(playerOne);
+				// Mix_PlayChannel(-1, twohigh, 0);				
+
 				kickvar1=1;
 				}
 			}
@@ -339,36 +358,8 @@ void Game::run()
 				longvar1=1;
 				}
 			}
-			if(keyState[SDL_SCANCODE_R]){
-				// if(played==1 and gamestate==1)
-				// {
-				// 	// gTexture=loadTexture("habib.png");
-				// 	// state=0;
-				// 	Game::run();
-				// }
-			}
-			// if(keyState[SDL_SCANCODE_V]){
-			// 	if(playerOne->flipstate==true)
-			// 	{
-			// 		assetsOne = loadTexture(playerOne->getterright());
-					
-			// 	}
-			// 	else
-			// 	{
-			// 		assetsOne = loadTexture(playerOne->getterleft());
-			// 	}
-			// 	playerOne->flip();
-			// 	if(playerTwo->flipstate==true)
-			// 	{
-			// 		assetsTwo = loadTexture(playerTwo->getterleft());
-			// 	}
-			// 	else
-			// 	{
-			// 		assetsTwo = loadTexture(playerTwo->getterright());
-			// 	}
-			// 	playerTwo->flip();
-
-			// }
+			
+			
 
 			drawBg();
 
@@ -388,17 +379,42 @@ void Game::run()
 
 			if(playerOne->healthrect.w<=0 || playerTwo->healthrect.w<=0)
 			{
+				
+				if(playerTwo->healthrect.w<=0){
+					changeBg("player1wins.png");
+				}else{
+					changeBg("player2wins.png");
+				}
+				bool quitloop =false;
+				while(!quitloop){
+					while( SDL_PollEvent( &e ) != 0 ){
+						drawBg();
+						if(e.type == SDL_QUIT)
+						{
+							quitloop = true;
+							close();
+						}
+						if(e.type == SDL_KEYDOWN) {
+							if(e.key.keysym.sym == SDLK_1){
+								quitloop = true;
+							}
+						}
+						
+					}
+				}
+				
 				endGame(playerOne,playerTwo);
+			
 				cout<<"Game end"<<endl;
 				gameStart.restart();
-				cout<<playerOne->healthrect.h<<endl;
+				// cout<<playerOne->healthrect.h<<endl;
 
 
 			}
 			
 			// createCharacters(gRenderer, assetsOne,assetsTwo); 
 
-			//****************************************************************
+			//**********************
 			SDL_RenderPresent(gRenderer); //displays the updated renderer
 
 			SDL_Delay(50);	//causes sdl engine to delay for specified miliseconds
@@ -407,4 +423,3 @@ void Game::run()
 
 	}		
 }
-
