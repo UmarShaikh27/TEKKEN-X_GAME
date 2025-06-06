@@ -1,9 +1,8 @@
 #pragma once
-#include <SDL.h>
-// #include <SDL_ttf.h>
-#include <SDL_image.h>
-// #include <SDL_mixer.h>
-// #include <SDL_mixer.h>
+#include "SDL.h"
+#include "SDL_image.h"
+#include "SDL_mixer.h"
+
 #include <sstream>
 #include <stdio.h>
 #include <iostream>
@@ -53,9 +52,13 @@ class Game{
     SDL_Rect greenMOVErect2={685,10,300,30};
 	SDL_Rect whiteMOVErect1={7,7,306,36};
     SDL_Rect whiteMOVErect2={682,7,306,36};
-    // TTF_Font* font;
-
     
+    // Sound effects
+    Mix_Music* backgroundMusic;
+    Mix_Chunk* onehigh;
+    Mix_Chunk* twohigh;
+    Mix_Chunk* threehigh;
+    Mix_Chunk* fourhigh;
 
 public:
     bool init();
@@ -79,71 +82,80 @@ public:
         theGame->changeBg("choosebackground.jpeg");
         SDL_Event e;
         bool quit = false;
+        bool shouldClose = false;
+        
         while(!quit){
-            while( SDL_PollEvent( &e ) != 0 )
-			{
-				//User requests quit
-                if( e.type == SDL_QUIT )
-                {
+            while(SDL_PollEvent(&e) != 0){
+                if(e.type == SDL_QUIT){
                     quit = true;
-                    theGame->close();
+                    shouldClose = true;
+                    break;
                 }
-                if(e.type == SDL_KEYDOWN) {
+                if(e.type == SDL_KEYDOWN){
                     SDL_Keycode symbol = e.key.keysym.sym;
                     if(symbol == SDLK_1){
                         theGame->changeBg("background1.png");
-                        quit=true;
+                        quit = true;
                     }
                     else if(symbol == SDLK_2){
                         theGame->changeBg("background2.png");
-                        quit=true;
+                        quit = true;
                     }
                     else if(symbol == SDLK_3){
                         theGame->changeBg("background3.jpeg");
-                        quit=true;
+                        quit = true;
                     }
                     else{
                         cout<<"Invalid key"<<endl;
                     }
                 }
             }
-            theGame->drawBg();
-            
-            SDL_Delay(50);
+            if (!shouldClose) {
+                theGame->drawBg();
+                SDL_Delay(50);
+            }
+        }
+        
+        if(shouldClose){
+            theGame->close();
         }
         cout<<"exiting the loop"<<endl;
     }
     void restart(){
         theGame->changeBg("restartscreen.jpeg");
         cout<<"R to restart, q to quit"<<endl;
-        // const Uint8* keyState = SDL_GetKeyboardState(NULL);
         SDL_Event e;
         bool quit = false;
+        bool shouldClose = false;
+        
         while(!quit){
-            while( SDL_PollEvent( &e ) != 0 )
-			{
-				//User requests quit
-                if( e.type == SDL_QUIT )
-                {
+            while(SDL_PollEvent(&e) != 0){
+                if(e.type == SDL_QUIT){
                     quit = true;
-                    theGame->close();
-
+                    shouldClose = true;
+                    break;
                 }
-                SDL_Keycode symbol = e.key.keysym.sym;
-                if(symbol == SDLK_r){
-                    theGame->run();
-                    quit = true;
-                }
-                else if(symbol == SDLK_q){
-                    quit = true;
-                    theGame->close();
+                if(e.type == SDL_KEYDOWN){
+                    SDL_Keycode symbol = e.key.keysym.sym;
+                    if(symbol == SDLK_r){
+                        quit = true;
+                        theGame->run();
+                    }
+                    else if(symbol == SDLK_q){
+                        quit = true;
+                        shouldClose = true;
+                    }
                 }
             }
-            theGame->drawBg();
-            
-            SDL_Delay(50);
+            if (!shouldClose) {
+                theGame->drawBg();
+                SDL_Delay(50);
+            }
         }
-        cout<<"exiting the loop"<<endl;
+        
+        if(shouldClose){
+            theGame->close();
+        }
     }
     Player* choosePlayers(int playerNum){
         static int state = 1;
@@ -155,6 +167,7 @@ public:
         const Uint8* keyState = SDL_GetKeyboardState(NULL);
         SDL_Event e;
         bool quit = false;
+        bool shouldClose = false;
         SDL_Rect healthLeft = {10,10,300,30}, healthRight = {685,10,300,30};
         SDL_Rect moverLeft = {100,300,150,270} , moverRight = {800,300,150,270};
         
@@ -165,7 +178,8 @@ public:
                 if( e.type == SDL_QUIT )
                 {
                     quit = true;
-                    theGame->close();
+                    shouldClose = true;
+                    break;
                 }
                 if(e.type == SDL_KEYDOWN) {
                     SDL_Keycode symbol = e.key.keysym.sym;
@@ -265,13 +279,18 @@ public:
                 }
             }
 
-            theGame->drawBg();
-
-
-            SDL_Delay(100);
+            if (!shouldClose) {
+                theGame->drawBg();
+                SDL_Delay(100);
+            }
         }
-        cout<<"exiting the loop"<<endl;
         
+        if(shouldClose) {
+            theGame->close();
+            return nullptr;
+        }
+        
+        cout<<"exiting the loop"<<endl;
     }
 
 

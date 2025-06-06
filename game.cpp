@@ -5,11 +5,11 @@
 #include <iostream>
 using namespace std;
 const Uint8* keyState;
-// Mix_Music *backgroundMusic = NULL;
-// Mix_Chunk *onehigh=NULL;
-// Mix_Chunk *twohigh=NULL;
-// Mix_Chunk *threehigh=NULL;
-// Mix_Chunk *fourhigh=NULL;
+Mix_Music *backgroundMusic = NULL;
+Mix_Chunk *onehigh = NULL;
+Mix_Chunk *twohigh = NULL;
+Mix_Chunk *threehigh = NULL;
+Mix_Chunk *fourhigh = NULL;
 
 bool Game::init()
 {
@@ -22,13 +22,20 @@ bool Game::init()
 	// }
 
 	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		success = false;
 	}
 	else
 	{
+		//Initialize SDL_mixer
+		if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+		{
+			printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+			success = false;
+		}
+
 		//Set texture filtering to linear
 		if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) )
 		{
@@ -82,12 +89,30 @@ bool Game::loadMedia()
 	//Loading success flag
 	bool success = true;
 	
-	// assetsOne = loadTexture("playerimg/redmanright.png");
-	// assetsTwo = loadTexture("playerimg/kakashileft.png");
-    // gTexture = loadTexture("habib.png");
-	greentexture=loadTexture("green.png");
-	whitetexture=loadTexture("white.png");
-		return success;
+	// Load textures
+	greentexture = loadTexture("green.png");
+	whitetexture = loadTexture("white.png");
+
+	// Load sound effects
+	onehigh = Mix_LoadWAV("hits/1.ogg");
+	twohigh = Mix_LoadWAV("hits/2.ogg");
+	threehigh = Mix_LoadWAV("hits/gethit.wav");
+	fourhigh = Mix_LoadWAV("hits/girlno.wav");
+	backgroundMusic = Mix_LoadMUS("hits/background.wav");
+
+	if (onehigh == NULL || twohigh == NULL || threehigh == NULL || fourhigh == NULL || backgroundMusic == NULL)
+	{
+		printf("Failed to load sound effects! SDL_mixer Error: %s\n", Mix_GetError());
+		success = false;
+	}
+
+	// Start playing background music
+	if (Mix_PlayMusic(backgroundMusic, -1) == -1) {
+		printf("Failed to play background music! SDL_mixer Error: %s\n", Mix_GetError());
+		success = false;
+	}
+
+	return success;
 	}
 
 
@@ -103,29 +128,51 @@ bool Game::loadMedia()
 
 void Game::close()
 {
-	//Free loaded images
-	SDL_DestroyTexture(assetsOne);
-	SDL_DestroyTexture(assetsTwo);
-	assetsOne=NULL;
-	assetsTwo=NULL;
-	SDL_DestroyTexture(gTexture);
-	
-	//Destroy window
-	SDL_DestroyRenderer( gRenderer );
-	SDL_DestroyWindow( gWindow );
-	// Mix_FreeChunk(onehigh);
-	// Mix_FreeChunk(twohigh);
-	// Mix_FreeChunk(threehigh);
-	// Mix_FreeChunk(fourhigh);
-	// Mix_FreeMusic(backgroundMusic);
-	// Mix_FreeMusic(bgMusic);
-	// bgMusic = NULL;
-	gWindow = NULL;
-	gRenderer = NULL;
-	//Quit SDL subsystems
-	IMG_Quit();
-	// Mix_Quit();
-	SDL_Quit();
+    // Only clean up if not already cleaned
+    if (gRenderer != NULL || gWindow != NULL) {
+        //Free loaded images
+        if (assetsOne != NULL) {
+            SDL_DestroyTexture(assetsOne);
+            assetsOne = NULL;
+        }
+        if (assetsTwo != NULL) {
+            SDL_DestroyTexture(assetsTwo);
+            assetsTwo = NULL;
+        }
+        if (gTexture != NULL) {
+            SDL_DestroyTexture(gTexture);
+            gTexture = NULL;
+        }
+        
+        //Destroy renderer first
+        if (gRenderer != NULL) {
+            SDL_DestroyRenderer(gRenderer);
+            gRenderer = NULL;
+        }
+        
+        //Then destroy window
+        if (gWindow != NULL) {
+            SDL_DestroyWindow(gWindow);
+            gWindow = NULL;
+        }
+
+        //Free sound effects
+        Mix_FreeChunk(onehigh);
+        Mix_FreeChunk(twohigh);
+        Mix_FreeChunk(threehigh);
+        Mix_FreeChunk(fourhigh);
+        Mix_FreeMusic(backgroundMusic);
+        onehigh = NULL;
+        twohigh = NULL;
+        threehigh = NULL;
+        fourhigh = NULL;
+        backgroundMusic = NULL;
+
+        //Quit SDL subsystems
+        Mix_Quit();
+        IMG_Quit();
+        SDL_Quit();
+    }
 }
 
 SDL_Texture* Game::loadTexture( std::string path )
@@ -185,10 +232,17 @@ void Game::run()
 {
 	startup gameStart(this);
 	Player* playerOne = gameStart.choosePlayers(1);
+	if (playerOne == nullptr) {
+		return; // Game was closed during player 1 selection
+	}
 	cout<<"Player one chosen"<<endl;
 	SDL_Delay(50);
+	
 	Player* playerTwo = gameStart.choosePlayers(2);
-	// playerTwo->flipstate=false;
+	if (playerTwo == nullptr) {
+		delete playerOne; // Clean up player one if we exit during player 2 selection
+		return;
+	}
 	cout<<"Player two chosen"<<endl;
 	gameStart.drawGrounds();
 	
@@ -313,6 +367,8 @@ void Game::run()
 				if(kickvar2==0)
 				{
 				playerOne->kickattack(playerTwo);
+				Mix_PlayChannel(-1, twohigh, 0);  // Kick sound
+				Mix_PlayChannel(-1, threehigh, 0); // Hit sound
 				kickvar2=1;
 				}
 
@@ -322,9 +378,8 @@ void Game::run()
 				{
 				playerOne->punchAttack(playerTwo);
 				longvar2=1;
-				// playerTwo.healthrect.w-=5;
-				// playerTwo.healthrect.x+=5; RECENT
-				// Mix_PlayChannel( -1, gHigh, 0 );
+				Mix_PlayChannel(-1, onehigh, 0);  // Punch sound
+				Mix_PlayChannel(-1, threehigh, 0); // Hit sound
 				}
 			}
 
@@ -346,8 +401,8 @@ void Game::run()
 				if(kickvar1==0)
 				{
 				playerTwo->kickattack(playerOne);
-				// Mix_PlayChannel(-1, twohigh, 0);				
-
+				Mix_PlayChannel(-1, twohigh, 0);  // Kick sound
+				Mix_PlayChannel(-1, threehigh, 0); // Hit sound
 				kickvar1=1;
 				}
 			}
@@ -355,6 +410,8 @@ void Game::run()
 				if(longvar1==0)
 				{
 				playerTwo->punchAttack(playerOne);
+				Mix_PlayChannel(-1, onehigh, 0);  // Punch sound
+				Mix_PlayChannel(-1, threehigh, 0); // Hit sound
 				longvar1=1;
 				}
 			}

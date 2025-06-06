@@ -1,5 +1,5 @@
 #include <iostream>
-#include <SDL.h>
+#include "SDL.h"
 class Timer {
 public:
     Timer() : startTicks(0), pausedTicks(0), paused(false), started(false) {}

@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL.h>
+#include "SDL.h"
 
 struct Playerstates{
     SDL_Rect srcRect,walkOne,walkTwo,walkThree,kickRect,punchRect,hitRect;
