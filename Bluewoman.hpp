@@ -3,8 +3,13 @@
 #include "Playerstates.hpp"
 class Bluewoman:public Player{
 public:
-	//takes two structs, two rectangles
-	Bluewoman(SDL_Rect mover,SDL_Rect health, string face){
+    /**
+     * @Constructs a Blue Woman fighter
+     * @param mover Rectangle for character position and collision
+     * @param health Rectangle for health bar display
+     * @param face Initial facing direction ("left" or "right")
+     */
+    Bluewoman(SDL_Rect mover,SDL_Rect health, string face){
 		moverRect = mover;
 		healthrect = health;
 		Data = (face=="right")? rightface : leftface;

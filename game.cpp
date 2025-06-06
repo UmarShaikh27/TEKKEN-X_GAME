@@ -1,25 +1,44 @@
 #pragma once
 #include "game.hpp"
-
-
 #include <iostream>
 using namespace std;
+
+/**
+ * @ Global variables for game state and audio
+ * 
+ * These variables manage:
+ * - Keyboard state for input handling
+ * - Background music track
+ * - Sound effects for different actions:
+ *   - onehigh: Punch sound
+ *   - twohigh: Kick sound
+ *   - threehigh: Hit reaction sound
+ *   - fourhigh: Additional effects
+ */
 const Uint8* keyState;
 Mix_Music *backgroundMusic = NULL;
-Mix_Chunk *onehigh = NULL;
-Mix_Chunk *twohigh = NULL;
-Mix_Chunk *threehigh = NULL;
-Mix_Chunk *fourhigh = NULL;
+Mix_Chunk *onehigh = NULL;    // Punch sound effect
+Mix_Chunk *twohigh = NULL;    // Kick sound effect
+Mix_Chunk *threehigh = NULL;  // Hit reaction sound
+Mix_Chunk *fourhigh = NULL;   // Additional effects
 
+/**
+ * @brief Initializes the game engine and SDL subsystems
+ * 
+ * Performs the following initialization steps:
+ * 1. Initializes SDL video and audio subsystems
+ * 2. Creates the game window
+ * 3. Creates the renderer
+ * 4. Initializes SDL_mixer for audio
+ * 5. Sets up texture filtering
+ * 6. Configures SDL_image for PNG loading
+ * 
+ * @return true if all systems initialized successfully, false otherwise
+ */
 bool Game::init()
 {
-	//Initialization flag
-	bool success = true;
-	// if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
-	// {
-    // 	printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
-    // 	success = false;
-	// }
+    //Initialization flag
+    bool success = true;
 
 	//Initialize SDL
 	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
@@ -228,6 +247,19 @@ void Game::endGame(Player* playerOne,Player* playerTwo){
 	delete playerTwo;
 	playerTwo = nullptr;
 }
+/**
+ * @brief Main game loop and core gameplay function
+ * 
+ * This function handles:
+ * 1. Player character selection
+ * 2. Game initialization
+ * 3. Input processing
+ * 4. Combat mechanics
+ * 5. Game state updates
+ * 6. Rendering
+ * 7. Sound effects
+ * 8. Victory/defeat conditions
+ */
 void Game::run()
 {
 	startup gameStart(this);
