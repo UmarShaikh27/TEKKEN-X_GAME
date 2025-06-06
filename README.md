@@ -65,17 +65,33 @@ The project includes:
    - SDL2_mixer.dll
    - SDL2_ttf.dll
 
-Build using either method:
+Build using any of these methods:
 
-Using G++ directly:
+1. Using the Makefile (Recommended):
+```powershell
+# To build the game
+mingw32-make
+
+# To run the game after building
+.\Game.exe
+
+# To clean build files and executable
+mingw32-make clean
+```
+
+Note: On Windows with MinGW, we use `mingw32-make` instead of just `make`. Make sure MinGW's bin directory is in your system PATH.
+
+2. Using G++ directly:
 ```powershell
 g++ *.cpp -I./include -L./lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -o Game.exe
 ```
 
-Or using VS Code:
-1. Open the project in VS Code
-2. Press Ctrl+Shift+B to build
-3. The executable will be created as `Game.exe`
+3. Using VS Code:
+- Open the project in VS Code
+- Press Ctrl+Shift+B to build
+- The executable will be created as `Game.exe`
+
+The Makefile method is recommended as it handles all compilation flags and dependencies properly.
 
 ## Gameplay
 
