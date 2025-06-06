@@ -4,11 +4,20 @@
 #include <iostream>
 using namespace std;
 
-class Player{
-
+/**
+ * @class Player
+ *  Base class for all playable characters in the game
+ * 
+ * This abstract class defines the interface and common functionality
+ * for all player characters. It handles movement, attacks, health,
+ * and character states using SDL rectangles for collision and rendering.
+ */
+class Player {
 public:
-    // SDL_Rect srcRect,moverRect,walkOne,walkTwo,walkThree,kickRect,punchRect,hitRect,healthrect;
-    SDL_Rect moverRect,healthrect;
+    // Rectangle for character position and collision on screen
+    SDL_Rect moverRect;
+    // Rectangle for health bar rendering
+    SDL_Rect healthrect;
     Playerstates* Data;
     Player() = default;
     string leftfaceimage="playerimg/redmanright.png";
@@ -32,7 +41,13 @@ public:
    
     // virtual void flip() = 0;
     virtual void deletePlayer() = 0;                 
-    void changeState(){
+    /**
+     *  Updates the character's walking animation state
+     * 
+     * Cycles through three walking animation frames (walkOne, walkTwo, walkThree)
+     * to create a smooth walking animation when the character moves.
+     */
+    void changeState() {
         if(Data->srcRect.x == Data->walkOne.x && Data->srcRect.y == Data->walkOne.y){
             Data->srcRect = Data->walkTwo;
         }
@@ -43,6 +58,14 @@ public:
             Data->srcRect = Data->walkOne;
         }
     }
+    /**
+     *  Executes a punch attack against another player
+     * @param playerTwo Pointer to the player being attacked
+     * 
+     * Changes character sprite to punch animation and checks if the
+     * target player is within attack range (170 pixels). If in range,
+     * applies punch damage to the target.
+     */
     void punchAttack(Player* playerTwo){
         Data->srcRect = Data->punchRect;
         if(abs(moverRect.x-playerTwo->moverRect.x) < 170){
@@ -50,6 +73,14 @@ public:
         }
     }
 
+    /**
+     *  Executes a kick attack against another player
+     * @param playerTwo Pointer to the player being attacked
+     * 
+     * Changes character sprite to kick animation and checks if the
+     * target player is within attack range (170 pixels). If in range,
+     * applies kick damage (higher than punch) to the target.
+     */
     void kickattack(Player* playerTwo)
     {
         SDL_Rect temp  =  Data->srcRect;
@@ -78,11 +109,24 @@ public:
     
 
 
+    /**
+     *  Handles the player receiving a punch attack
+     * 
+     * Changes the character sprite to hit animation and
+     * reduces health by 5 points (displayed in health bar)
+     */
     void getPunched(){
         Data->srcRect=Data->hitRect;
         this->healthrect.w-=5;
-
     }
+
+    /**
+     *  Handles the player receiving a kick attack
+     * 
+     * Changes the character sprite to hit animation and
+     * reduces health by 10 points (displayed in health bar)
+     * Kick does more damage than punch.
+     */
     void getKicked(){
         Data->srcRect=Data->hitRect;
         this->healthrect.w-=10;

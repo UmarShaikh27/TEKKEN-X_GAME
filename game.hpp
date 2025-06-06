@@ -25,13 +25,24 @@
 // #include "Warrior.hpp"
 // #include "Soldier.hpp"
 
-class Game{
+/**
+ * @class Game
+ *  Main game engine class that handles core game functionality
+ * 
+ * This class is responsible for:
+ * - Initializing SDL and creating the game window
+ * - Managing the game loop and state
+ * - Handling player input and character selection
+ * - Managing audio and visual resources
+ * - Coordinating battles between players
+ * - Cleanup and resource management
+ */
+class Game {
     //Screen dimension constants
-    const int SCREEN_WIDTH = 1000;
-    const int SCREEN_HEIGHT = 600;
+    const int SCREEN_WIDTH = 1000;   // Window width in pixels
+    const int SCREEN_HEIGHT = 600;   // Window height in pixels
    
-
-    //The window we'll be rendering to
+    // The main game window
     SDL_Window* gWindow = NULL;
 
     //The window renderer
@@ -61,21 +72,82 @@ class Game{
     Mix_Chunk* fourhigh;
 
 public:
+    /**
+     *  Initializes SDL subsystems and creates window
+     * @return true if initialization successful, false otherwise
+     */
     bool init();
+
+    /**
+     *  Loads game assets (images, sounds, textures)
+     * @return true if all media loaded successfully, false otherwise
+     */
     bool loadMedia();
+
+    /**
+     *  Renders the current background
+     */
     void drawBg();    
+
+    /**
+     *  Cleans up SDL resources and closes the game
+     */
     void close();
-    void endGame(Player* playerOne,Player* playerTwo);
+
+    /**
+     *  Handles end of game cleanup for both players
+     * @param playerOne Pointer to first player to cleanup
+     * @param playerTwo Pointer to second player to cleanup
+     */
+    void endGame(Player* playerOne, Player* playerTwo);
+
+    /**
+     *  Sets the texture for player one's character
+     * @param str Path to the sprite sheet image
+     */
     void setAssetsOne(string str);
+
+    /**
+     *  Sets the texture for player two's character
+     * @param str Path to the sprite sheet image
+     */
     void setAssetsTwo(string str);
-    SDL_Texture* loadTexture( std::string path );
+
+    /**
+     *  Loads a texture from file
+     * @param path Path to the image file
+     * @return Pointer to the loaded SDL_Texture
+     */
+    SDL_Texture* loadTexture(std::string path);
+
+    /**
+     *  Changes the background image
+     * @param str Path to the new background image
+     */
     void changeBg(std::string str);
+
+    /**
+     *  Main game loop that handles gameplay
+     */
     void run();
 };
 
-class startup{
+/**
+ *  Handles game initialization and player selection screens
+ * 
+ * This class manages:
+ * - Background selection
+ * - Character selection for both players
+ * - Game restart functionality
+ * - Screen transitions
+ */
+class startup {
 public:
-    startup(Game* newGame){
+    /**
+     *  Constructor takes a pointer to the main game instance
+     * @param newGame Pointer to the Game instance this startup will manage
+     */
+    startup(Game* newGame) {
         theGame = newGame;
     }
     void drawGrounds(){

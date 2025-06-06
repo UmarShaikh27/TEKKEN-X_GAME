@@ -1,22 +1,49 @@
 #include <iostream>
 #include "SDL.h"
+
+/**
+ *  Timer class for managing game time and pausing functionality
+ * 
+ * Provides functionality for:
+ * - Starting and stopping game time
+ * - Pausing and resuming gameplay
+ * - Tracking elapsed time
+ * - Managing game state timing
+ */
 class Timer {
 public:
-    Timer() : startTicks(0), pausedTicks(0), paused(false), started(false) {}
-    // Timer start
+    /**
+     *  Constructor initializes timer in stopped state
+     */
+    Timer() : startTicks(0), pausedTicks(0), paused(false), started(false) {}    /**
+     *  Starts the timer
+     * 
+     * Initializes the timer and begins counting from the current moment.
+     * Also ensures the timer isn't paused when starting.
+     */
     void start() {
         started = true;
         paused = false;
         startTicks = SDL_GetTicks();
     }
 
-    // Timer stop
+    /**
+     *  Stops the timer
+     * 
+     * Completely stops the timer and resets its state.
+     * Different from pause as this is a full reset.
+     */
     void stop() {
         started = false;
         paused = false;
     }
 
-    // Pause timer and game
+    /**
+     *  Pauses the timer
+     * 
+     * Temporarily halts the timer while preserving the elapsed time.
+     * Only works if the timer is currently running and not already paused.
+     */
     void pause() {
         if (started && !paused) {
             paused = true;

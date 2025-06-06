@@ -2,10 +2,24 @@
 #include "Player.hpp"
 #include "Playerstates.hpp"
 
-class Kakashi:public Player{
+/**
+ *  Kakashi character class implementing the Player interface
+ * 
+ * Represents the Kakashi fighter character with:
+ * - Custom sprite animations for attacks
+ * - Specific hit boxes and movement rectangles
+ * - Character-specific asset paths
+ * - Unique animation frame coordinates
+ */
+class Kakashi : public Player {
 public:
-	//takes two structs, two rectangles
-	Kakashi(SDL_Rect mover,SDL_Rect health, string face){
+    /**
+     *  Constructs a new Kakashi fighter
+     * @param mover Rectangle defining character's position and size
+     * @param health Rectangle defining health bar position and size
+     * @param face Direction the character is facing ("left" or "right")
+     */
+    Kakashi(SDL_Rect mover, SDL_Rect health, string face) {
 		moverRect = mover;
 		healthrect = health;
 		Data = (face=="right")? rightface : leftface;
